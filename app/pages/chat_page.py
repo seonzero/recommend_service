@@ -3,11 +3,13 @@ import os
 import streamlit as st
 # 대화 내역 관리
 from langchain_core.chat_history import InMemoryChatMessageHistory
-#llm 체인 구성
+# llm 체인 구성
 from langchain_google_genai import ChatGoogleGenerativeAI #모델
 from langchain_core.output_parsers import StrOutputParser #파서
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder #프롬프트
 from langchain_core.runnables.history import RunnableWithMessageHistory #연결
+# 라우터 구성
+from langchain_core.runnables import RunnableLambda
 
 
 st.subheader("💬 AI Chatbot")
@@ -71,3 +73,39 @@ general_chain = RunnableWithMessageHistory(
     input_message_key = "question",
     history_messages_key = "history",
 )
+
+
+# 라우터 구성
+router_keywords = {
+    "콘서트 검색": ["콘서트", "concert", "비용", "가려면", "티켓"], 
+    "유튜브": ["유튜브", "youtube", "영상", "동영상"],
+}
+
+def classify_topic(question):
+    for key, values in router_keywords.items():
+        if any(keyword in question for keyword in values):
+            return key
+        return "기타"
+
+def router_step(inputs):
+    question = inputs["question"]
+    topic = classify_topic(quesiton)
+    return {"question": question, "topic": topic}
+
+# RunnableLambda 객체를 통해 중간 체인을 정의해준다. 
+# 사용자 질문 내용에 따라 토픽이 결정되어 반환되는 중간 체인
+router_chain = RunnableLambda(router_step)
+
+# 넘겨받은 딕셔너리를 기반으로 서로 다른 답변이 실행될 수 있는 최종 route함수
+def route(info):
+    topic = info["topic"]
+    if topic == "유튜브":
+        return "유튜브 검색 기능은 향후 구현될 예정입니다."
+
+    if topic == "콘서트 검색":
+        return "콘서트 검색 기능은 향후 구현될 예정입니다."
+
+    return general_chain.invoke(
+        {"question": info["question"]},
+        config={"session_id": SESSION_ID},
+    )
