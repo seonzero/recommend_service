@@ -20,3 +20,7 @@ pip install -r requirements.txt
 
 - 인덱스 페이지 생성
 ![인덱스페이지](readme_image/index_page.png)
+
+- 로그인 페이지 작성
+![alt text](readme_image/login_page_1.png)
+![alt text](readme_image/login_page_2.png)
