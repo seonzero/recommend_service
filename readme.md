@@ -19,8 +19,12 @@ pip install -r requirements.txt
 - app.py
 
 - 인덱스 페이지 생성
-![인덱스페이지](readme_image/index_page.png)
+    ![인덱스페이지](readme_image/index_page.png)
 
 - 로그인 페이지 작성
-![alt text](readme_image/login_page_1.png)
-![alt text](readme_image/login_page_2.png)
+    ![alt text](readme_image/login_page_1.png)
+    ![alt text](readme_image/login_page_2.png)
+
+- ai 챗봇 페이지 작성 
+    (본격적 기능 구현 전 간단 페이지만 생성)
+    ![alt text](readme_image/chat_page.png)
