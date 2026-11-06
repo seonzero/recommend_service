@@ -28,3 +28,9 @@ pip install -r requirements.txt
 - ai 챗봇 페이지 작성 
     (본격적 기능 구현 전 간단 페이지만 생성)
     ![alt text](readme_image/chat_page.png)
+
+## 여담
+- 메모리 이슈...
+    
+    어라? 이전 대화가 없어서 아직 성함(닉네임)을 잘 모르겠어요! 😅
+    ![alt text](readme_image/error_no_memory.png)

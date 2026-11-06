@@ -57,7 +57,7 @@ prompt = ChatPromptTemplate(
             """,
         ),
         MessagesPlaceholder("history"),
-        ("human", {question}),
+        ("human", "{question}"),
     ]
 )
 model = ChatGoogleGenerativeAI(model="gemini-3.5-flash-lite")
@@ -89,7 +89,7 @@ def classify_topic(question):
 
 def router_step(inputs):
     question = inputs["question"]
-    topic = classify_topic(quesiton)
+    topic = classify_topic(question)
     return {"question": question, "topic": topic}
 
 # RunnableLambda 객체를 통해 중간 체인을 정의해준다. 
@@ -109,3 +109,27 @@ def route(info):
         {"question": info["question"]},
         config={"session_id": SESSION_ID},
     )
+
+
+# 3) 최종 체인 구성
+full_chain = (
+    router_chain
+    | RunnableLambda(route)
+)
+
+# 4) 사용자 입력
+prompt = st.chat_input("무엇을 도와드릴까요?")
+
+# 5) 들어온 값 자랑
+if prompt:
+    st.session_state.messages.append({"role":"user", "content":prompt})
+    with st.spinner("AI가 응답을 생성하는 중입니다..."):
+        response = full_chain.invoke({"question": prompt})
+    st.session_state.messages.append({"role": "assistant", "content": response})
+
+# 6) 출력
+for message in st.session_state.messages:
+    speaker = "user" if message["role"] == "user" else "assistant"
+
+    with st.chat_message(speaker):
+        st.markdown(message["content"])
