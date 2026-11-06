@@ -3,6 +3,15 @@ import os
 import streamlit as st
 # 대화 내역 관리
 from langchain_core.chat_history import InMemoryChatMessageHistory
+#llm 체인 구성
+from langchain_google_genai import ChatGoogleGenerativeAI #모델
+from langchain_core.output_parsers import StrOutputParser #파서
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder #프롬프트
+from langchain_core.runnables.history import RunnableWithMessageHistory #연결
+
+
+st.subheader("💬 AI Chatbot")
+
 
 # 0) api 키 불러오기
 _api_key = st.secrets.get("GOOGLE_API_KEY", "")
@@ -33,3 +42,32 @@ def get_memory(session_id):
         chat_memories[session_key] = InMemoryChatMessageHistory()
     return chat_memories[session_key]
 
+
+# 2) 범용 답변용 구성 요소 정의와 체인 생성
+# - 프롬프트, 모델, 출력 파서 정의
+prompt = ChatPromptTemplate(
+    [
+        (
+            "system",
+            """
+            너는 친절한 JPOP 리스너이다. 
+            이전 메시지를 바탕으로 질문 의도를 파악하고, 단계적으로 설명하라.
+            """,
+        ),
+        MessagesPlaceholder("history"),
+        ("human", {question}),
+    ]
+)
+model = ChatGoogleGenerativeAI(model="gemini-3.5-flash-lite")
+output_parser = StrOutputParser()
+
+# 범용 답변 체인 생성
+chain = prompt | model | output_parser
+
+# - RunnableWithMessageHistory를 사용해 전체 흐름 정리 & 대화 내역 관리
+general_chain = RunnableWithMessageHistory(
+    chain, 
+    get_memory,
+    input_message_key = "question",
+    history_messages_key = "history",
+)
