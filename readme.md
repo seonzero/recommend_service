@@ -14,3 +14,9 @@ source .venv/Scripts/activate
 ```bash
 pip install -r requirements.txt
 ```
+
+### 과정
+- app.py
+
+- 인덱스 페이지 생성
+![인덱스페이지](readme_image/index_page.png)
