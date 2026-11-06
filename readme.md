@@ -1,0 +1,16 @@
+## 사전 준비물
+- python 3.11 이상
+- gemini api 키
+- git, pip 사용 가능 환경
+
+## 설치 방법
+1. 저장소 복제 or 소스코드 다운
+2. 가상환경을 만들고 활성화
+```bash
+python -m venv .venv
+source .venv/Scripts/activate
+```
+3. 필요한 패키지 설치
+```bash
+pip install -r requirements.txt
+```
