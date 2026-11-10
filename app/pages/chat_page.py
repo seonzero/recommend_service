@@ -59,7 +59,7 @@ prompt = ChatPromptTemplate(
             """,
         ),
         MessagesPlaceholder(variable_name = "history"), #history라는 변수
-        ("human", "{question}"), #question이라는 변수
+        ("human", "{input}"), #question이라는 변수
     ]
 )
 model = ChatGoogleGenerativeAI(model="gemini-3.5-flash-lite")
@@ -74,7 +74,7 @@ chain = prompt | model | output_parser
 general_chain = RunnableWithMessageHistory(
     chain, 
     get_memory, #🧠 대화내역저장소를 가져오는 함수
-    input_message_key = "question",
+    input_message_key = "input",
     history_messages_key = "history",
 )
 
@@ -85,16 +85,16 @@ router_keywords = {
     "유튜브": ["유튜브", "youtube", "영상", "동영상"],
 }
 
-def classify_topic(question):
+def classify_topic(user_input):
     for key, values in router_keywords.items():
-        if any(keyword in question for keyword in values):
+        if any(keyword in user_input for keyword in values):
             return key
     return "기타"
 
 def router_step(inputs):
-    question = inputs["question"]
-    topic = classify_topic(question)
-    return {"question": question, "topic": topic}
+    user_input = inputs["input"]
+    topic = classify_topic(user_input)
+    return {"input": user_input, "topic": topic}
 
 # RunnableLambda 객체를 통해 중간 체인을 정의해준다. 
 # 사용자 질문 내용에 따라 토픽이 결정되어 반환되는 중간 체인
@@ -110,7 +110,7 @@ def route(info):
         return "콘서트 검색 기능은 향후 구현될 예정입니다."
 
     return general_chain.invoke(
-        {"question": info["question"]},
+        {"input": info["input"]},
         config={"session_id": SESSION_ID},
     )
 
@@ -128,7 +128,7 @@ prompt = st.chat_input("무엇을 도와드릴까요?")
 if prompt:
     st.session_state.messages.append({"role":"user", "content":prompt})
     with st.spinner("AI가 응답을 생성하는 중입니다..."):
-        response = full_chain.invoke({"question": prompt})
+        response = full_chain.invoke({"input": prompt})
     st.session_state.messages.append({"role": "assistant", "content": response})
 
 # 6) 출력

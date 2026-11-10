@@ -34,3 +34,6 @@ pip install -r requirements.txt
     
     어라? 이전 대화가 없어서 아직 성함(닉네임)을 잘 모르겠어요! 😅
     ![alt text](readme_image/error_no_memory.png)
+
+- 랭체인 환경변수 여부에 따라 변수명을 `question`에서 `input`으로 바꿔야했다. (chat_page 구조 자체는 문제없었다)
+    ![alt text](readme_image/error_complete_no_message.png)
