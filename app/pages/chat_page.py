@@ -34,6 +34,7 @@ if "chat_memory" not in st.session_state:
 # - session_id에 사용자 식별값 할당
 SESSION_ID = "chapter6"
 
+#🧠대화 내역 저장소
 # - RunnableWithMessageHistory 객체 생성시 사용할 함수 
 # : 사용자 식별키에 따라 적절한 대화 내용 저장소 생성 or 반환
 # 이때 대화내용저장소(chat_memory)는 InMemoryChatMessageHistory 객체로 생성
@@ -43,6 +44,7 @@ def get_memory(session_id):
     if session_key not in chat_memories:
         chat_memories[session_key] = InMemoryChatMessageHistory()
     return chat_memories[session_key]
+#🧠InMemorychatMessageHistory()객체인 chat_memories[session_key]을 반환한다
 
 
 # 2) 범용 답변용 구성 요소 정의와 체인 생성
@@ -56,8 +58,8 @@ prompt = ChatPromptTemplate(
             이전 메시지를 바탕으로 질문 의도를 파악하고, 단계적으로 설명하라.
             """,
         ),
-        MessagesPlaceholder("history"),
-        ("human", "{question}"),
+        MessagesPlaceholder(variable_name = "history"), #history라는 변수
+        ("human", "{question}"), #question이라는 변수
     ]
 )
 model = ChatGoogleGenerativeAI(model="gemini-3.5-flash-lite")
@@ -67,9 +69,11 @@ output_parser = StrOutputParser()
 chain = prompt | model | output_parser
 
 # - RunnableWithMessageHistory를 사용해 전체 흐름 정리 & 대화 내역 관리
+#🧠 앞서 정의한 체인(chain)과 대화내역저장소(get_memory)를 하나로 묶어준다
+
 general_chain = RunnableWithMessageHistory(
     chain, 
-    get_memory,
+    get_memory, #🧠 대화내역저장소를 가져오는 함수
     input_message_key = "question",
     history_messages_key = "history",
 )
@@ -85,7 +89,7 @@ def classify_topic(question):
     for key, values in router_keywords.items():
         if any(keyword in question for keyword in values):
             return key
-        return "기타"
+    return "기타"
 
 def router_step(inputs):
     question = inputs["question"]
@@ -113,14 +117,14 @@ def route(info):
 
 # 3) 최종 체인 구성
 full_chain = (
-    router_chain
+    router_chain #return: {"question": question, "topic": topic}
     | RunnableLambda(route)
 )
 
 # 4) 사용자 입력
 prompt = st.chat_input("무엇을 도와드릴까요?")
 
-# 5) 들어온 값 자랑
+# 5) 들어온 값 저장
 if prompt:
     st.session_state.messages.append({"role":"user", "content":prompt})
     with st.spinner("AI가 응답을 생성하는 중입니다..."):
